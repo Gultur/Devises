@@ -5,10 +5,14 @@ namespace LuccaDevises.Services;
 internal class LuccaDevisesService : ILuccaDevisesService
 {
     private IProgramArgumentValidationService _programArgumentValidationService;
+    private IFileService _fileService;
 
-    public LuccaDevisesService(IProgramArgumentValidationService programArgumentValidationService)
+    public LuccaDevisesService(
+        IProgramArgumentValidationService programArgumentValidationService,
+        IFileService fileService)
     {
-        _programArgumentValidationService = programArgumentValidationService;
+        this._programArgumentValidationService = programArgumentValidationService;
+        this._fileService = fileService;
     }
 
     public void Execute(string[] args)
@@ -16,7 +20,7 @@ internal class LuccaDevisesService : ILuccaDevisesService
         string[] appArgs = Environment.GetCommandLineArgs();
 
 
-        var result = _programArgumentValidationService.AreArgumentsValid(appArgs);
+        var result = this._programArgumentValidationService.AreArgumentsValid(appArgs);
 
         if (result.IsFailure)
         {

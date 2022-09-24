@@ -6,6 +6,8 @@ internal class CurrencyCode
 {
     public const string PATTERN = @"^[A-Z]{3}$";
 
-    [RegularExpression(@"^[A-Z]{3}$", ErrorMessage = "Bad Format")]
-    public string? Code { get; set; }
+    [RegularExpression(PATTERN, ErrorMessage = "Bad Format")]
+    public string? Code { get; set; } 
+
+    public override string ToString() => this.Code;
 }

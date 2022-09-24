@@ -19,12 +19,12 @@ internal class ProgramArgumentValidationService : IProgramArgumentValidationServ
 
     public ProgramArgumentValidationService(IFileService fileService)
     {
-        _fileService = fileService;
+        this._fileService = fileService;
     }
 
     public Result AreArgumentsValid(string[] programArguments)
     {
-        // First argument is the ddl - Shouldn't happend
+        // First argument is the dll - shouldn't happend
         if (programArguments.Length == 0)
         {
             return Result.Failure(NO_ARGUMENT_PROVIDED);
@@ -40,14 +40,14 @@ internal class ProgramArgumentValidationService : IProgramArgumentValidationServ
             return Result.Failure(TOO_MUCH_ARGUMENTS_PROVIDED);
         }
 
-        // The secondth argument must be the file name
+        // The second argument must be the file path
         string expectedFilePath = programArguments[1];
         if (!_fileService.IsfileExists(expectedFilePath))
         {
             return Result.Failure(string.Format(FILE_NOT_EXIST, expectedFilePath));
         }
 
-        // We should check if the extension is a valid one, but none are provided in the subject
+        // We should check if the extension is a valid one, but none are provided
 
         return Result.Success();
     }

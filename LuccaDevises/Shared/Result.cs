@@ -2,9 +2,9 @@
 {
     public class Result
     {
-        public ResultState State { get; private set; }
+        public ResultState State { get; internal set; }
 
-        public string? Message { get; private set; } 
+        public string? Message { get; internal set; } 
 
 
         public static Result Failure(string failureMessage)
