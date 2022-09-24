@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuccaDevises", "LuccaDevises\LuccaDevises.csproj", "{3FED787C-DFE4-4585-A9D6-A28412FD2A10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuccaDevisesTests", "LuccaDevisesTests\LuccaDevisesTests.csproj", "{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{3FED787C-DFE4-4585-A9D6-A28412FD2A10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3FED787C-DFE4-4585-A9D6-A28412FD2A10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3FED787C-DFE4-4585-A9D6-A28412FD2A10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
