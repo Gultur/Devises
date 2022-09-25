@@ -1,8 +1,8 @@
-﻿namespace LuccaDevises.Abstractions;
+﻿using LuccaDevises.Shared;
+
+namespace LuccaDevises.Abstractions;
 
 public interface IFileService
 {
-    public bool IsfileExists(string filePath);
-
-    public IEnumerable<string> GetFile(string filePath);
+    public Result<IEnumerable<string>> GetFileContent(string filePath);
 }

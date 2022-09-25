@@ -29,6 +29,31 @@
 
     }
 
+    public class Result<T> : Result
+    {
+        // Il ne faudrait pas pouvoir acceder à la valeur en cas de Failure
+        public T Value { get; internal set; }
+
+        public new static Result<T> Failure(string failureMessage)
+        {
+            return new Result<T>()
+            {
+                State = ResultState.FAILURE,
+                Message = failureMessage,
+                Value = default(T),
+            };
+        }
+
+        public static Result<T> Success(T value)
+        {
+            return new Result<T>()
+            {
+                State = ResultState.SUCCESS,
+                Value = value,
+            };
+        }
+    }
+
     public enum ResultState : short
     {
         SUCCESS,

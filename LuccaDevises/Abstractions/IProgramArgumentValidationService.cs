@@ -4,5 +4,5 @@ namespace LuccaDevises.Abstractions;
 
 public interface IProgramArgumentValidationService
 {
-    public Result AreArgumentsValid(string[] args);
+    public Result<string> GetFilePathFromArguments(string[] args);
 }

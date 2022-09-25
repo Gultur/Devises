@@ -20,7 +20,9 @@ class Program
     {
             services.AddSingleton<IFileService, FileService>()
                 .AddSingleton<IProgramArgumentValidationService, ProgramArgumentValidationService>()
-                .AddSingleton<IDataContentValidationService, DataContentValidationService>()
+                .AddSingleton<IExchangeRequestValidationService, ExchangeRequestValidationService>()
+                .AddSingleton<IExchangeRequestService, ExchangeRequestService>()
+                .AddSingleton<IOutputService, OutputService>()
                 .AddSingleton<ILuccaDevisesService, LuccaDevisesService>();
     }
 }

@@ -10,7 +10,7 @@ namespace LuccaDevisesTests;
 [TestFixture]
 public class TestDataContentValidationService
 {
-    private DataContentValidationService _dataContentValidationService;
+    private ExchangeRequestValidationService _dataContentValidationService;
 
     private const string VALID_HEADER = "EUR;550;JPY";
     private const string VALID_CHANGE_LINE_COUNT = "1";
@@ -23,7 +23,7 @@ public class TestDataContentValidationService
     public void Setup()
     {
         this._fixture = new Fixture();
-        this._dataContentValidationService = new DataContentValidationService();
+        this._dataContentValidationService = new ExchangeRequestValidationService();
     }
 
     [Test]
@@ -33,11 +33,11 @@ public class TestDataContentValidationService
         string[] dataContent = Array.Empty<string>();
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.NO_CONTENT);
+        result.Message.Should().Be(ExchangeRequestValidationService.NO_CONTENT);
 
     }
 
@@ -54,11 +54,11 @@ public class TestDataContentValidationService
         }
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.NOT_ENOUGH_LINES);
+        result.Message.Should().Be(ExchangeRequestValidationService.NOT_ENOUGH_LINES);
     }
 
     #region header
@@ -70,11 +70,11 @@ public class TestDataContentValidationService
         dataContent[0] = "invalidHeader";
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
     
     [TestCase("NotANumber")]
@@ -91,11 +91,11 @@ public class TestDataContentValidationService
 
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
     
     [Test]
@@ -109,11 +109,11 @@ public class TestDataContentValidationService
 
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
 
 
@@ -132,11 +132,11 @@ public class TestDataContentValidationService
         dataContent[1] = lineCount;
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
     
     [Test]
@@ -149,11 +149,11 @@ public class TestDataContentValidationService
         dataContent[1] = "2";
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
 
     #endregion
@@ -168,11 +168,11 @@ public class TestDataContentValidationService
         dataContent[2] = "Invalid";
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
 
     [TestCase("invalidLine", Reason = "the line don't have the expected 3 elements")]
@@ -191,11 +191,11 @@ public class TestDataContentValidationService
 
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
-        result.Message.Should().Be(DataContentValidationService.BAD_FORMATING);
+        result.Message.Should().Be(ExchangeRequestValidationService.BAD_FORMATING);
     }
 
     #endregion
@@ -208,7 +208,7 @@ public class TestDataContentValidationService
 
 
         // Act
-        Result result = this._dataContentValidationService.IsDataContentValid(dataContent);
+        Result result = this._dataContentValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

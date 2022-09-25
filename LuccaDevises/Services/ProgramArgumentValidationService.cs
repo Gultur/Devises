@@ -12,43 +12,26 @@ internal class ProgramArgumentValidationService : IProgramArgumentValidationServ
     internal const string NO_ARGUMENT_PROVIDED = "No argument provided";
     internal const string NO_FILEPATH_PROVIDED = "A file path is expected";
     internal const string TOO_MUCH_ARGUMENTS_PROVIDED = "Too much arguments provided";
-    internal const string FILE_NOT_EXIST = @"{0} is not a valid file path, no file has beed found";
-
-    private IFileService _fileService;
 
 
-    public ProgramArgumentValidationService(IFileService fileService)
-    {
-        this._fileService = fileService;
-    }
-
-    public Result AreArgumentsValid(string[] programArguments)
+    public Result<string> GetFilePathFromArguments(string[] programArguments)
     {
         // First argument is the dll - shouldn't happend
         if (programArguments.Length == 0)
         {
-            return Result.Failure(NO_ARGUMENT_PROVIDED);
+            return Result<string>.Failure(NO_ARGUMENT_PROVIDED);
         }
 
-        if (programArguments.Length < 2)
+        //if (programArguments.Length < 2)
+        //{
+        //    return Result<string>.Failure(NO_FILEPATH_PROVIDED);
+        //}
+
+        if (programArguments.Length > 1)
         {
-            return Result.Failure(NO_FILEPATH_PROVIDED);
+            return Result<string>.Failure(TOO_MUCH_ARGUMENTS_PROVIDED);
         }
 
-        if (programArguments.Length > 2)
-        {
-            return Result.Failure(TOO_MUCH_ARGUMENTS_PROVIDED);
-        }
-
-        // The second argument must be the file path
-        string expectedFilePath = programArguments[1];
-        if (!_fileService.IsfileExists(expectedFilePath))
-        {
-            return Result.Failure(string.Format(FILE_NOT_EXIST, expectedFilePath));
-        }
-
-        // We should check if the extension is a valid one, but none are provided
-
-        return Result.Success();
+        return Result<string>.Success(programArguments[0]);
     }
 }
