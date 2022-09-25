@@ -2,7 +2,7 @@
 
 namespace LuccaDevises.Entities;
 
-internal class CurrencyCode
+public record CurrencyCode
 {
     public const string PATTERN = @"^[A-Z]{3}$";
 

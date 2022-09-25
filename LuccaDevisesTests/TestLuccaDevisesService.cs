@@ -1,9 +1,9 @@
-﻿using FluentAssertions;
-using Moq;
+﻿using Moq;
 
 using LuccaDevises.Shared;
 using LuccaDevises.Services;
 using LuccaDevises.Abstractions;
+using LuccaDevises.Entities;
 
 namespace LuccaDevisesTests;
 
@@ -49,6 +49,12 @@ public class TestLuccaDevisesService
             this._fileServiceMock.Object,
             this._exchangeRequestValidationServiceMock.Object,
             this._outputServiceMock.Object);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        this._mockRepository.VerifyAll();
     }
 
     [Test]
@@ -108,9 +114,6 @@ public class TestLuccaDevisesService
 
         //Assert
 
-        this._programArgumentValidationServiceMock
-             .Verify(service => service.GetFilePathFromArguments(args), Times.Once);
-
         this._fileServiceMock
             .Verify(service => service.GetFileContent(filePathResult.Value), Times.Once);
 
@@ -131,7 +134,7 @@ public class TestLuccaDevisesService
 
         Result<IEnumerable<string>> fileResult = Result<IEnumerable<string>>.Success(fileContent);
 
-        Result filecontentResult = Result.Failure(ERROR_MESSAGE);
+        Result<CurrencyExchangeRequest> filecontentResult = Result<CurrencyExchangeRequest>.Failure(ERROR_MESSAGE);
 
 
         _ = this._programArgumentValidationServiceMock
@@ -154,17 +157,50 @@ public class TestLuccaDevisesService
 
         //Assert
 
-        this._programArgumentValidationServiceMock
-             .Verify(service => service.GetFilePathFromArguments(args), Times.Once);
-
-        this._fileServiceMock
-            .Verify(service => service.GetFileContent(filePathResult.Value), Times.Once);
-
         this._exchangeRequestValidationServiceMock
             .Verify(service => service.IsRequestContentValid(fileContent), Times.Once);
 
         this._outputServiceMock
              .Verify(service => service.OutputError(ERROR_MESSAGE), Times.Once);
     }
+    
+    [Test]
+    public void TestLuccaDevisesService_Execute_When_FileContent_Valid_Then_Calculate()
+    {
 
+        // Arrange
+        string[] args = new string[] { FILE_PATH };
+
+        Result<string> filePathResult = Result<string>.Success(FILE_PATH);
+
+        Result<IEnumerable<string>> fileResult = Result<IEnumerable<string>>.Success(fileContent);
+
+        Result<CurrencyExchangeRequest> filecontentResult = Result<CurrencyExchangeRequest>.Success(GetCurrencyExchangeRequest());
+
+
+        _ = this._programArgumentValidationServiceMock
+            .Setup(service => service.GetFilePathFromArguments(args))
+            .Returns(filePathResult);
+
+        _ = this._fileServiceMock
+            .Setup(service => service.GetFileContent(filePathResult.Value))
+            .Returns(fileResult);
+
+        _ = this._exchangeRequestValidationServiceMock
+            .Setup(service => service.IsRequestContentValid(fileContent))
+            .Returns(filecontentResult);
+
+        // Act
+        this._luccaDevisesService.Execute(args);
+
+        //Assert
+
+        this._outputServiceMock
+             .Verify(service => service.OutputError(It.IsAny<string>()), Times.Never);
+    }
+
+    private static CurrencyExchangeRequest GetCurrencyExchangeRequest()
+    {
+        return new CurrencyExchangeRequest(new CurrencyCode("EUR"), new CurrencyCode("JPY"), 550);
+    }
 }

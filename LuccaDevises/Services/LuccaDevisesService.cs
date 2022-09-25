@@ -1,4 +1,5 @@
 ﻿using LuccaDevises.Abstractions;
+using LuccaDevises.Entities;
 using LuccaDevises.Shared;
 
 namespace LuccaDevises.Services;
@@ -63,11 +64,11 @@ internal class LuccaDevisesService : ILuccaDevisesService
                     Console.WriteLine(line);
                 }
 
-                var dataresult = this._exchangeRequestValidationService.IsRequestContentValid(fileContent);
+                Result<CurrencyExchangeRequest> requestValidationResult = this._exchangeRequestValidationService.IsRequestContentValid(fileContent);
 
-                if (dataresult.IsFailure)
+                if (requestValidationResult.IsFailure)
                 {
-                    this._outputService.OutputError(dataresult.Message);
+                    this._outputService.OutputError(requestValidationResult.Message);
                 }
             }
         }
