@@ -1,26 +1,23 @@
 ﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 using LuccaDevises.Abstractions;
 using LuccaDevises.Entities;
 using LuccaDevises.Shared;
 
-[assembly: InternalsVisibleTo("LuccaDevisesTests")]
 namespace LuccaDevises.Services;
 
-internal class ExchangeRequestService : IExchangeRequestService
+internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
 {
     public Result<int> CalculateExchange(CurrencyExchangeRequest currencyExchangeRequest)
     {
 
         currencyExchangeRequest = this.CleanUselessExchangeRates(currencyExchangeRequest);
 
-        // we need a graph
-
         IEnumerable<CurrencyCode> distinctCurrencies = currencyExchangeRequest.GetDistinctCurrencies();
 
-        CurrencyGraph graph = NewMethod(currencyExchangeRequest, distinctCurrencies);
-        Result<List<CurrencyCode>> shortestPathResult = NewMethod1(currencyExchangeRequest, graph);
+        CurrencyGraph graph = new CurrencyGraph(distinctCurrencies, currencyExchangeRequest.ExchangesRates.Keys.ToArray());
+
+        Result<List<CurrencyCode>> shortestPathResult = graph.GetShortestPath(currencyExchangeRequest.InitialCurrency, currencyExchangeRequest.ExpectedCurrency);
 
         if (shortestPathResult.IsFailure)
         {
@@ -59,19 +56,6 @@ internal class ExchangeRequestService : IExchangeRequestService
 
         return Result<int>.Success(roundedAmount);
     }
-
-    private static Result<List<CurrencyCode>> NewMethod1(CurrencyExchangeRequest currencyExchangeRequest, CurrencyGraph graph)
-    {
-        return graph.GetShortestPath(currencyExchangeRequest.InitialCurrency, currencyExchangeRequest.ExpectedCurrency);
-    }
-
-    private static CurrencyGraph NewMethod(CurrencyExchangeRequest currencyExchangeRequest, IEnumerable<CurrencyCode> distinctCurrencies)
-    {
-        return new CurrencyGraph(
-            distinctCurrencies,
-            currencyExchangeRequest.ExchangesRates.Keys.ToArray());
-    }
-
 
     // some currency(other than the initial and final) have only one relation, they don't have use in calculation
     private CurrencyExchangeRequest CleanUselessExchangeRates(CurrencyExchangeRequest currencyExchangeRequest)

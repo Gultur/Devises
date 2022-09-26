@@ -9,15 +9,15 @@ internal class LuccaDevisesService : ILuccaDevisesService
     private IProgramArgumentValidationService _programArgumentValidationService;
     private IFileService _fileService;
     private IOutputService _outputService;
-    private IExchangeRequestValidationService _exchangeRequestValidationService;
-    private IExchangeRequestService _exchangeRequestService;
+    private ICurrencyExchangeRequestValidationService _exchangeRequestValidationService;
+    private ICurrencyExchangeRequestService _exchangeRequestService;
 
     public LuccaDevisesService(
         IProgramArgumentValidationService programArgumentValidationService,
         IFileService fileService,
-        IExchangeRequestValidationService exchangeRequestValidationService,
+        ICurrencyExchangeRequestValidationService exchangeRequestValidationService,
         IOutputService outputService,
-        IExchangeRequestService exchangeRequestService)
+        ICurrencyExchangeRequestService exchangeRequestService)
     {
         this._programArgumentValidationService = programArgumentValidationService;
         this._fileService = fileService;
@@ -37,7 +37,7 @@ internal class LuccaDevisesService : ILuccaDevisesService
 
         if (filePathResult.IsFailure)
         {
-            this._outputService.OutputError(filePathResult.Message);
+            this._outputService.OutputErrorMessage(filePathResult.Message);
         }
         else
         {
@@ -46,7 +46,8 @@ internal class LuccaDevisesService : ILuccaDevisesService
 
             if (fileContentResult.IsFailure)
             {
-                this._outputService.OutputError(fileContentResult.Message);
+                this._outputService.OutputErrorMessage(fileContentResult.Message);
+                return;
             }
 
             //IEnumerable<string> fileContent = new string[]
@@ -60,26 +61,31 @@ internal class LuccaDevisesService : ILuccaDevisesService
             //    "EUR;USD;1.2989",
             //    "JPY;INR;0.6571",
             //};
-            else
+            var fileContent = fileContentResult.Value;
+
+            foreach (string line in fileContent)
             {
-                var fileContent = fileContentResult.Value;
-
-                foreach (string line in fileContent)
-                {
-                    Console.WriteLine(line);
-                }
-
-                Result<CurrencyExchangeRequest> requestValidationResult = this._exchangeRequestValidationService.IsRequestContentValid(fileContent);
-
-                if (requestValidationResult.IsFailure)
-                {
-                    this._outputService.OutputError(requestValidationResult.Message);
-                }
-                else
-                {
-                    this._exchangeRequestService.CalculateExchange(requestValidationResult.Value);
-                }
+                Console.WriteLine(line);
             }
+
+            Result<CurrencyExchangeRequest> requestValidationResult = this._exchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(fileContent);
+
+            if (requestValidationResult.IsFailure)
+            {
+                this._outputService.OutputErrorMessage(requestValidationResult.Message);
+                return;
+            }
+
+            Result<int> calculationResult = this._exchangeRequestService.CalculateExchange(requestValidationResult.Value);
+
+            if (calculationResult.IsFailure)
+            {
+                this._outputService.OutputErrorMessage(calculationResult.Message);
+                return;
+            }
+
+            this._outputService.OutputMessage(calculationResult.Value.ToString());
+
         }
 
     }

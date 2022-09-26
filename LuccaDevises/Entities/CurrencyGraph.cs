@@ -1,7 +1,7 @@
-﻿using LuccaDevises.Entities;
+﻿using LuccaDevises.Shared;
 using System.Diagnostics;
 
-namespace LuccaDevises.Shared;
+namespace LuccaDevises.Entities;
 
 
 public class CurrencyGraph
@@ -15,37 +15,37 @@ public class CurrencyGraph
 
     public CurrencyGraph(IEnumerable<CurrencyCode> distinctCurrencies, CurrencyRelation[] currencyRelations)
     {
-        this._currenciesCount = distinctCurrencies.Count();
+        _currenciesCount = distinctCurrencies.Count();
 
-        this._currencyAdjencyList = new LinkedList<CurrencyCode>[this._currenciesCount];
-        this._indexByCurrencyCode = new Dictionary<CurrencyCode, int>();
+        _currencyAdjencyList = new LinkedList<CurrencyCode>[_currenciesCount];
+        _indexByCurrencyCode = new Dictionary<CurrencyCode, int>();
 
         foreach (var (currency, index) in distinctCurrencies.Select((currency, index) => (currency, index)))
         {
-            this._currencyAdjencyList[index] = new LinkedList<CurrencyCode>();
-            this._indexByCurrencyCode.Add(currency, index);
+            _currencyAdjencyList[index] = new LinkedList<CurrencyCode>();
+            _indexByCurrencyCode.Add(currency, index);
         }
 
         foreach (CurrencyRelation currencyRelation in currencyRelations)
         {
             AddNeigbours(currencyRelation);
         }
-        
-        this.PrintGraph();
+
+        PrintGraph();
     }
 
 
     private void AddNeigbours(CurrencyRelation currencyRelation)
     {
         // un lien de taux de change est bidirectionnel
-        this._currencyAdjencyList[this._indexByCurrencyCode[currencyRelation.InitialCurrency]].AddLast(currencyRelation.FinalCurrency);
-        this._currencyAdjencyList[this._indexByCurrencyCode[currencyRelation.FinalCurrency]].AddLast(currencyRelation.InitialCurrency);
+        _currencyAdjencyList[_indexByCurrencyCode[currencyRelation.InitialCurrency]].AddLast(currencyRelation.FinalCurrency);
+        _currencyAdjencyList[_indexByCurrencyCode[currencyRelation.FinalCurrency]].AddLast(currencyRelation.InitialCurrency);
     }
 
     private LinkedList<CurrencyCode> GetAdjacentCurrency(CurrencyCode currencyCode)
     {
-        var index = this._indexByCurrencyCode[currencyCode];
-        return this._currencyAdjencyList[index];
+        var index = _indexByCurrencyCode[currencyCode];
+        return _currencyAdjencyList[index];
     }
 
 
@@ -53,12 +53,12 @@ public class CurrencyGraph
     // representation of graph
     private void PrintGraph()
     {
-        for (int i = 0; i < this._currencyAdjencyList.Length; i++)
+        for (int i = 0; i < _currencyAdjencyList.Length; i++)
         {
             Debug.WriteLine("\nRelation for the Currency "
-                              + this._indexByCurrencyCode.First(kv => kv.Value == i));
+                              + _indexByCurrencyCode.First(kv => kv.Value == i));
 
-            foreach (CurrencyCode item in this._currencyAdjencyList[i])
+            foreach (CurrencyCode item in _currencyAdjencyList[i])
             {
                 Debug.Write(" -> " + item);
             }
@@ -87,7 +87,7 @@ public class CurrencyGraph
             CurrencyCode dequeuedCurrency = currenciesToExplore.Dequeue();
 
             // Get linked currencies
-            CurrencyCode[] adjacentCurrency = this.GetAdjacentCurrency(dequeuedCurrency).Select(c => c).ToArray();
+            CurrencyCode[] adjacentCurrency = GetAdjacentCurrency(dequeuedCurrency).Select(c => c).ToArray();
 
             if (!adjacentCurrency.Any())
             {
@@ -130,10 +130,10 @@ public class CurrencyGraph
 
     private void WriteDebug(CurrencyCode sourceCurrencyCode, CurrencyCode destinationCurrencyCode)
     {
-        int sourceIndex = this._indexByCurrencyCode[sourceCurrencyCode];
+        int sourceIndex = _indexByCurrencyCode[sourceCurrencyCode];
         Debug.WriteLine("Source currency " + sourceCurrencyCode + " at index " + sourceIndex);
 
-        int destinationIndex = this._indexByCurrencyCode[destinationCurrencyCode];
+        int destinationIndex = _indexByCurrencyCode[destinationCurrencyCode];
         Debug.WriteLine("Destination currency " + destinationCurrencyCode + " at index " + destinationIndex);
     }
 
@@ -146,8 +146,8 @@ public class CurrencyGraph
         public CurrencyPathComputed(CurrencyCode currencyCode, IEnumerable<CurrencyCode> existingPath, int distance)
         {
             CurrencyCode = currencyCode;
-            this.Path = new List<CurrencyCode>(existingPath);
-            this.Path.Add(currencyCode);
+            Path = new List<CurrencyCode>(existingPath);
+            Path.Add(currencyCode);
             Distance = distance;
         }
 
@@ -158,7 +158,7 @@ public class CurrencyGraph
 
         public new string ToString()
         {
-            return string.Join(" -> ", this.Path.Select(c => c.ToString()));
+            return string.Join(" -> ", Path.Select(c => c.ToString()));
         }
     }
 }

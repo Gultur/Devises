@@ -1,5 +1,4 @@
 ﻿using FluentAssertions;
-using Moq;
 
 using LuccaDevises.Shared;
 using LuccaDevises.Services;

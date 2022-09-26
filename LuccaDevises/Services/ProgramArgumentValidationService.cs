@@ -1,10 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-
-using LuccaDevises.Abstractions;
+﻿using LuccaDevises.Abstractions;
 using LuccaDevises.Shared;
 
-
-[assembly: InternalsVisibleTo("LuccaDevisesTests")]
 namespace LuccaDevises.Services;
 
 internal class ProgramArgumentValidationService : IProgramArgumentValidationService

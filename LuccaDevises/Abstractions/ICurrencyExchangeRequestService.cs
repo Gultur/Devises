@@ -3,7 +3,7 @@ using LuccaDevises.Shared;
 
 namespace LuccaDevises.Abstractions;
 
-public interface IExchangeRequestService
+public interface ICurrencyExchangeRequestService
 {
     Result<int> CalculateExchange(CurrencyExchangeRequest currencyExchangeRequest);
 }

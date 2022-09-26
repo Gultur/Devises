@@ -9,15 +9,21 @@ using LuccaDevises.Shared;
 [assembly: InternalsVisibleTo("LuccaDevisesTests")]
 namespace LuccaDevises.Services;
 
-internal class ExchangeRequestValidationService : IExchangeRequestValidationService
+internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeRequestValidationService
 {
-    internal const string NO_CONTENT = "No content";
-    internal const string NOT_ENOUGH_LINES = "At least three lines are expected";
-    internal const string BAD_FORMATING = "Data is not well formated";
+    internal const string NO_CONTENT = "The specified file is empty";
+    internal const string NOT_ENOUGH_LINES = "The file content is incomplete";
+    internal const string CURRENCY_CODE_MISFORMAT = "At least one currency code have a bad formatting";
+    internal const string FIRST_LINE_INCOMPLETE = "The first line of the file is incomplete or have bad formatting";
+    internal const string AMOUNT_NOT_PARSABLE = "The amount to exchange failed to be parsed or is less than 0";
+    internal const string LINE_COUNT_NOT_PARSABLE = "The exchange rate line count failed to be parsed or is less than 0";
+    internal const string LINE_COUNT_INVALID = "The number of exchange lines does not match the given exchange lines";
+    internal const string EXCHANGE_LINE_INVALID = "At least one exchange rate line have bad formatting";
+    internal const string EXCHANGE_RATE_NOT_PARSABLE = "At least one exchange rate failed to be parsed or is less than 0";
 
     // currency code seems like an iso code, further validation should be using an iso code source
 
-    public Result<CurrencyExchangeRequest> IsRequestContentValid(IEnumerable<string> content)
+    public Result<CurrencyExchangeRequest> IsCurrencyExchangeRequestContentValid(IEnumerable<string> content)
     {
 
         if (IsContentNullOrEmpy(content))
@@ -25,7 +31,9 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
             return Result<CurrencyExchangeRequest>.Failure(NO_CONTENT);
         }
 
-        string[] data = content.ToArray();
+        // we remove external white space
+        string[] data = content.Select(line => line.Trim()).ToArray();
+
         if (IsLineMissing(data))
         {
             return Result<CurrencyExchangeRequest>.Failure(NOT_ENOUGH_LINES);
@@ -38,16 +46,16 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
         Result<CurrencyExchangeRequest> initializeRequestHeaderResult = AddHeaderDataToRequest(headerLine);
         if (initializeRequestHeaderResult.IsFailure)
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(initializeRequestHeaderResult.Message);
         }
 
         CurrencyExchangeRequest currencyExchangeRequest = initializeRequestHeaderResult.Value;
 
-        // line 2 of type integer
+        // line 2 of type positive integer
         string changeLinesCountData = data[1];
         if (IsLineCountInvalid(changeLinesCountData, out int expectedChangeLinesCount))
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(LINE_COUNT_NOT_PARSABLE);
         }
 
         // n-2 lines of type (iso, iso, decimal x.xxxx)
@@ -55,7 +63,7 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
 
         if (exchangeRateLines.Length != expectedChangeLinesCount)
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(LINE_COUNT_INVALID);
         }
 
         Result<CurrencyExchangeRequest> addExchangeRateResult = this.AddExchangeRatesToRequest(exchangeRateLines, currencyExchangeRequest);
@@ -63,7 +71,7 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
 
         if(addExchangeRateResult.IsFailure)
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(addExchangeRateResult.Message);
         }
 
 
@@ -99,17 +107,17 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
 
         if (headerLineElements.Length != 3)
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(FIRST_LINE_INCOMPLETE);
         }
 
         if (this.IsInvalidCurrencyCode(headerLineElements[0]) || this.IsInvalidCurrencyCode(headerLineElements[2]))
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(CURRENCY_CODE_MISFORMAT);
         }
 
         if (!int.TryParse(headerLineElements[1], out int amount) || amount < 0)
         {
-            return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+            return Result<CurrencyExchangeRequest>.Failure(AMOUNT_NOT_PARSABLE);
         }
 
         CurrencyExchangeRequest currencyExchangeRequest = new CurrencyExchangeRequest(
@@ -155,28 +163,27 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
 
             if (changeLineElements.Length != 3)
             {
-                return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+                return Result<CurrencyExchangeRequest>.Failure(EXCHANGE_LINE_INVALID);
             }
 
 
             if (this.IsInvalidCurrencyCode(changeLineElements[0]) || this.IsInvalidCurrencyCode(changeLineElements[1]))
             {
-                return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+                return Result<CurrencyExchangeRequest>.Failure(CURRENCY_CODE_MISFORMAT);
             }
 
 
             CultureInfo provider = new CultureInfo("en-GB"); // the separator must be  '.'
-            NumberStyles numberStyles = NumberStyles.AllowDecimalPoint;
-            if (!decimal.TryParse(changeLineElements[2], numberStyles, provider, out decimal exangeRate))
+            if (!decimal.TryParse(changeLineElements[2], NumberStyles.AllowDecimalPoint, provider, out decimal exangeRate))
             {
-                return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+                return Result<CurrencyExchangeRequest>.Failure(EXCHANGE_RATE_NOT_PARSABLE);
             }
 
-            string[] decimalParts = exangeRate.ToString().Split('.');
+            string[] decimalParts = exangeRate.ToString().Split(',');
 
-            if (decimalParts.Length == 2 && decimalParts[1].Length > 4)
+            if (decimalParts.Length == 2 && decimalParts[1].Length > 4 || exangeRate < 0)
             {
-                return Result<CurrencyExchangeRequest>.Failure(BAD_FORMATING);
+                return Result<CurrencyExchangeRequest>.Failure(EXCHANGE_RATE_NOT_PARSABLE);
             }
 
             currencyExchangeRequest.AddExchangeRate(new CurrencyCode(changeLineElements[0]), new CurrencyCode(changeLineElements[1]), exangeRate);
@@ -184,7 +191,6 @@ internal class ExchangeRequestValidationService : IExchangeRequestValidationServ
 
         return Result<CurrencyExchangeRequest>.Success(currencyExchangeRequest);
     }
-
 
     private bool IsInvalidCurrencyCode(string code)
     {

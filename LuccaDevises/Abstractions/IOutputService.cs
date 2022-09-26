@@ -1,7 +1,8 @@
-﻿
-namespace LuccaDevises.Abstractions;
+﻿namespace LuccaDevises.Abstractions;
 
 public interface IOutputService
 {
-    void OutputError(string message);
+    void OutputErrorMessage(string message);
+
+    void OutputMessage(string message);
 }

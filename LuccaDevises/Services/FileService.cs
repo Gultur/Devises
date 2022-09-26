@@ -9,7 +9,7 @@ internal class FileService : IFileService
 
     Result<IEnumerable<string>> IFileService.GetFileContent(string filePath)
     {
-        if(!DoesFileExist(filePath))
+        if(!File.Exists(filePath))
         {
             return Result<IEnumerable<string>>.Failure(string.Format(FILE_NOT_EXIST, filePath));
         }
@@ -17,10 +17,5 @@ internal class FileService : IFileService
         // We should check if the extension is a valid one, but none are provided
 
         return Result<IEnumerable<string>>.Success(File.ReadLines(filePath));
-    }
-
-    private bool DoesFileExist(string filePath)
-    {
-        return File.Exists(filePath);
     }
 }

@@ -27,8 +27,8 @@ public class TestLuccaDevisesService
 
     private LuccaDevisesService _luccaDevisesService;
     private Mock<IProgramArgumentValidationService> _programArgumentValidationServiceMock;
-    private Mock<IExchangeRequestValidationService> _exchangeRequestValidationServiceMock;
-    private Mock<IExchangeRequestService> _exchangeRequestServiceMock;
+    private Mock<ICurrencyExchangeRequestValidationService> _exchangeRequestValidationServiceMock;
+    private Mock<ICurrencyExchangeRequestService> _exchangeRequestServiceMock;
     private Mock<IFileService> _fileServiceMock;
     private Mock<IOutputService> _outputServiceMock;
 
@@ -41,8 +41,8 @@ public class TestLuccaDevisesService
         this._mockRepository = new MockRepository(MockBehavior.Strict);
 
         this._programArgumentValidationServiceMock = this._mockRepository.Create<IProgramArgumentValidationService>();
-        this._exchangeRequestValidationServiceMock = this._mockRepository.Create<IExchangeRequestValidationService>();
-        this._exchangeRequestServiceMock = this._mockRepository.Create<IExchangeRequestService>();
+        this._exchangeRequestValidationServiceMock = this._mockRepository.Create<ICurrencyExchangeRequestValidationService>();
+        this._exchangeRequestServiceMock = this._mockRepository.Create<ICurrencyExchangeRequestService>();
         this._fileServiceMock = this._mockRepository.Create<IFileService>();
         this._outputServiceMock = this._mockRepository.Create<IOutputService>();
 
@@ -74,7 +74,7 @@ public class TestLuccaDevisesService
             .Returns(filePathResult);
 
         _ = this._outputServiceMock
-             .Setup(service => service.OutputError(ERROR_MESSAGE));
+             .Setup(service => service.OutputErrorMessage(ERROR_MESSAGE));
 
         // Act
         this._luccaDevisesService.Execute(args);
@@ -84,7 +84,7 @@ public class TestLuccaDevisesService
              .Verify(service => service.GetFilePathFromArguments(args), Times.Once);
 
         this._outputServiceMock
-             .Verify(service => service.OutputError(ERROR_MESSAGE), Times.Once);
+             .Verify(service => service.OutputErrorMessage(ERROR_MESSAGE), Times.Once);
     }
     
     [Test]
@@ -109,7 +109,7 @@ public class TestLuccaDevisesService
             .Returns(fileResult);
 
         _ = this._outputServiceMock
-             .Setup(service => service.OutputError(ERROR_MESSAGE));
+             .Setup(service => service.OutputErrorMessage(ERROR_MESSAGE));
 
         // Act
         this._luccaDevisesService.Execute(args);
@@ -119,7 +119,7 @@ public class TestLuccaDevisesService
             .Verify(service => service.GetFileContent(filePathResult.Value), Times.Once);
 
         this._outputServiceMock
-             .Verify(service => service.OutputError(ERROR_MESSAGE), Times.Once);
+             .Verify(service => service.OutputErrorMessage(ERROR_MESSAGE), Times.Once);
     }
     
     [Test]
@@ -147,21 +147,65 @@ public class TestLuccaDevisesService
             .Returns(fileResult);
 
         _ = this._exchangeRequestValidationServiceMock
-            .Setup(service => service.IsRequestContentValid(fileContent))
+            .Setup(service => service.IsCurrencyExchangeRequestContentValid(fileContent))
             .Returns(filecontentResult);
 
         _ = this._outputServiceMock
-             .Setup(service => service.OutputError(ERROR_MESSAGE));
+             .Setup(service => service.OutputErrorMessage(ERROR_MESSAGE));
 
         // Act
         this._luccaDevisesService.Execute(args);
 
         //Assert
         this._exchangeRequestValidationServiceMock
-            .Verify(service => service.IsRequestContentValid(fileContent), Times.Once);
+            .Verify(service => service.IsCurrencyExchangeRequestContentValid(fileContent), Times.Once);
 
         this._outputServiceMock
-             .Verify(service => service.OutputError(ERROR_MESSAGE), Times.Once);
+             .Verify(service => service.OutputErrorMessage(ERROR_MESSAGE), Times.Once);
+    }
+    
+    [Test]
+    public void TestLuccaDevisesService_Execute_When_FileContent_Calculate_Failure_Then_Message()
+    {
+
+        // Arrange
+        string[] args = new string[] { FILE_PATH };
+
+        Result<string> filePathResult = Result<string>.Success(FILE_PATH);
+
+        Result<IEnumerable<string>> fileResult = Result<IEnumerable<string>>.Success(fileContent);
+
+        Result<CurrencyExchangeRequest> filecontentResult = Result<CurrencyExchangeRequest>.Success(GetCurrencyExchangeRequest());
+
+        Result<int> calculResult = Result<int>.Failure(ERROR_MESSAGE);
+
+        _ = this._programArgumentValidationServiceMock
+            .Setup(service => service.GetFilePathFromArguments(args))
+            .Returns(filePathResult);
+
+        _ = this._fileServiceMock
+            .Setup(service => service.GetFileContent(filePathResult.Value))
+            .Returns(fileResult);
+
+        _ = this._exchangeRequestValidationServiceMock
+            .Setup(service => service.IsCurrencyExchangeRequestContentValid(fileContent))
+            .Returns(filecontentResult);
+
+        _ = this._exchangeRequestServiceMock
+            .Setup(service => service.CalculateExchange(filecontentResult.Value))
+            .Returns(calculResult);
+
+        _ = this._outputServiceMock
+             .Setup(service => service.OutputErrorMessage(ERROR_MESSAGE));
+
+        // Act
+        this._luccaDevisesService.Execute(args);
+
+        //Assert
+        this._exchangeRequestServiceMock
+            .Verify(service => service.CalculateExchange(filecontentResult.Value), Times.Once);
+        this._outputServiceMock
+             .Verify(service => service.OutputErrorMessage(ERROR_MESSAGE), Times.Once);
     }
     
     [Test]
@@ -188,19 +232,24 @@ public class TestLuccaDevisesService
             .Returns(fileResult);
 
         _ = this._exchangeRequestValidationServiceMock
-            .Setup(service => service.IsRequestContentValid(fileContent))
+            .Setup(service => service.IsCurrencyExchangeRequestContentValid(fileContent))
             .Returns(filecontentResult);
 
         _ = this._exchangeRequestServiceMock
             .Setup(service => service.CalculateExchange(filecontentResult.Value))
             .Returns(calculResult);
 
+        _ = this._outputServiceMock
+             .Setup(service => service.OutputMessage(calculResult.Value.ToString()));
+
         // Act
         this._luccaDevisesService.Execute(args);
 
         //Assert
         this._outputServiceMock
-             .Verify(service => service.OutputError(It.IsAny<string>()), Times.Never);
+             .Verify(service => service.OutputErrorMessage(It.IsAny<string>()), Times.Never);
+        this._outputServiceMock
+             .Verify(service => service.OutputMessage(calculResult.Value.ToString()), Times.Once);
     }
 
     private static CurrencyExchangeRequest GetCurrencyExchangeRequest()

@@ -8,15 +8,15 @@ using LuccaDevisesTests.Helper;
 namespace LuccaDevisesTests;
 
 [TestFixture]
-public class TestExchangeRequestService
+public class TestCurrencyExchangeRequestService
 {
-    private ExchangeRequestService _exchangeRequestService;
+    private CurrencyExchangeRequestService _exchangeRequestService;
 
 
     [SetUp]
     public void Setup()
     {
-        this._exchangeRequestService = new ExchangeRequestService();
+        this._exchangeRequestService = new CurrencyExchangeRequestService();
     }
 
     [Test]
@@ -35,7 +35,7 @@ public class TestExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
         int b = this._exchangeRequestService.CalculateExchange(a).Value;
@@ -61,7 +61,7 @@ public class TestExchangeRequestService
             "USD;JPY;82.6336", // EUR and JPY are connected with two path, shorter by USD
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
         int b = this._exchangeRequestService.CalculateExchange(a).Value;
@@ -87,7 +87,7 @@ public class TestExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
         int b = this._exchangeRequestService.CalculateExchange(a).Value;
@@ -113,7 +113,7 @@ public class TestExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
         int b = this._exchangeRequestService.CalculateExchange(a).Value;

@@ -1,9 +1,10 @@
-﻿using LuccaDevises.Entities;
-using System.Globalization;
+﻿using System.Globalization;
+
+using LuccaDevises.Entities;
 
 namespace LuccaDevisesTests.Helper;
 
-internal static class CurrencyExchangeRequestHelper
+internal static class CurrencyExchangeRequestTestHelper
 {
     public static CurrencyExchangeRequest CreateFromArray(string[] validArray)
     {
@@ -17,7 +18,6 @@ internal static class CurrencyExchangeRequestHelper
 
 
         CultureInfo provider = new CultureInfo("en-GB"); // the separator must be  '.'
-        NumberStyles numberStyles = NumberStyles.AllowDecimalPoint;
 
         // we ignore the first two line
         for (int i = 2; i<validArray.Length; i ++)
@@ -27,7 +27,7 @@ internal static class CurrencyExchangeRequestHelper
             currencyExchangeRequest.AddExchangeRate(
                 new CurrencyCode(exchangeRateParts[0]),
                 new CurrencyCode(exchangeRateParts[1]),
-                decimal.Parse(exchangeRateParts[2], numberStyles, provider));
+                decimal.Parse(exchangeRateParts[2], NumberStyles.AllowDecimalPoint, provider));
         }
 
         return currencyExchangeRequest;
