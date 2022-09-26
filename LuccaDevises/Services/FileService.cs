@@ -5,9 +5,9 @@ namespace LuccaDevises.Services;
 
 internal class FileService : IFileService
 {
-    internal const string FILE_NOT_EXIST = @"{0} is not a valid file path, no file has beed found";
+    internal const string FILE_NOT_EXIST = @"{0} is not a valid file path, no file has been found";
 
-    Result<IEnumerable<string>> IFileService.GetFileContent(string filePath)
+    public Result<IEnumerable<string>> GetFileContent(string filePath)
     {
         if(!File.Exists(filePath))
         {

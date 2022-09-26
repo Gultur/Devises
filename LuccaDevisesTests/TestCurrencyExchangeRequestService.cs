@@ -1,9 +1,9 @@
-﻿using AutoFixture;
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using LuccaDevises.Services;
 using LuccaDevises.Entities;
 using LuccaDevisesTests.Helper;
+using LuccaDevises.Shared;
 
 namespace LuccaDevisesTests;
 
@@ -35,15 +35,15 @@ public class TestCurrencyExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest currencyExchangeRequest = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
-        int b = this._exchangeRequestService.CalculateExchange(a).Value;
+        int calculatedAmount = this._exchangeRequestService.CalculateExchange(currencyExchangeRequest).Value;
 
         // Assert
-        b.Should().Be(59033);
+        calculatedAmount.Should().Be(59033);
     }
-    
+
     [Test]
     public void ExchangeRequestService_IsDataContentValid_CyclicGraphe_Then_Return_ValidAmount()
     {
@@ -61,15 +61,15 @@ public class TestCurrencyExchangeRequestService
             "USD;JPY;82.6336", // EUR and JPY are connected with two path, shorter by USD
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest currencyExchangeRequest = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
-        int b = this._exchangeRequestService.CalculateExchange(a).Value;
+        int calculatedAmount = this._exchangeRequestService.CalculateExchange(currencyExchangeRequest).Value;
 
         // Assert
-        b.Should().Be(59033);
+        calculatedAmount.Should().Be(59033);
     }
-    
+
     [Test]
     public void ExchangeRequestService_IsDataContentValid_Linear_BidirectionalRelation_Then_Return_ValidAmount()
     {
@@ -87,15 +87,15 @@ public class TestCurrencyExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest currencyExchangeRequest = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
-        int b = this._exchangeRequestService.CalculateExchange(a).Value;
+        int calculatedAmount = this._exchangeRequestService.CalculateExchange(currencyExchangeRequest).Value;
 
         // Assert
-        b.Should().Be(59033);
+        calculatedAmount.Should().Be(59033);
     }
-    
+
     [Test]
     public void ExchangeRequestService_IsDataContentValid_Linear_Double_Then_Return_ValidAmount()
     {
@@ -113,13 +113,39 @@ public class TestCurrencyExchangeRequestService
             "JPY;INR;0.6571",
         };
 
-        CurrencyExchangeRequest a = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
+        CurrencyExchangeRequest currencyExchangeRequest = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
 
         // Act
-        int b = this._exchangeRequestService.CalculateExchange(a).Value;
+        int calculatedAmount = this._exchangeRequestService.CalculateExchange(currencyExchangeRequest).Value;
 
         // Assert
-        b.Should().Be(59033);
+        calculatedAmount.Should().Be(59033);
+    }
+
+    [Test]
+    public void ExchangeRequestService_IsDataContentValid_Cycle_Separated_Then_Return_Failure()
+    {
+        // Arrange
+        string[] fileContent = new string[]
+        {
+            "EUR;550;JPY",
+            "7",
+            "AUD;CHF;0.9661", // EUR is in a cycle
+            "EUR;CHF;1.2053",
+            "USD;AUD;0.9605",
+            "EUR;USD;1.2989",
+            "JPY;INR;0.6571", // JPY is on a second cycle
+            "JPY;KRW;13.1151",
+            "INR;KRW;19.9591",
+        };
+
+        CurrencyExchangeRequest currencyExchangeRequest = CurrencyExchangeRequestTestHelper.CreateFromArray(fileContent);
+
+        // Act
+        Result<int> calculateResult = this._exchangeRequestService.CalculateExchange(currencyExchangeRequest);
+
+        // Assert
+        calculateResult.IsFailure.Should().BeTrue();
     }
 }
 

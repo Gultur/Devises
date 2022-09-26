@@ -4,6 +4,7 @@ using FluentAssertions;
 using LuccaDevises.Shared;
 using LuccaDevises.Services;
 using LuccaDevises.Entities;
+using LuccaDevisesTests.Helper;
 
 namespace LuccaDevisesTests;
 
@@ -33,7 +34,7 @@ public class TestCurrencyExchangeRequestValidationService
         string[] dataContent = Array.Empty<string>();
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -54,7 +55,7 @@ public class TestCurrencyExchangeRequestValidationService
         }
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -70,7 +71,7 @@ public class TestCurrencyExchangeRequestValidationService
         dataContent[0] = "invalidHeader";
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -91,7 +92,7 @@ public class TestCurrencyExchangeRequestValidationService
 
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -109,7 +110,7 @@ public class TestCurrencyExchangeRequestValidationService
 
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -132,7 +133,7 @@ public class TestCurrencyExchangeRequestValidationService
         dataContent[1] = lineCount;
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -149,7 +150,7 @@ public class TestCurrencyExchangeRequestValidationService
         dataContent[1] = "2";
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -169,7 +170,7 @@ public class TestCurrencyExchangeRequestValidationService
         dataContent[2] = line;
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -190,7 +191,7 @@ public class TestCurrencyExchangeRequestValidationService
 
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -211,7 +212,7 @@ public class TestCurrencyExchangeRequestValidationService
 
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -224,13 +225,15 @@ public class TestCurrencyExchangeRequestValidationService
     {
         // Arrange
         string[] dataContent = new string[3] { VALID_HEADER, VALID_CHANGE_LINE_COUNT, VALID_CHANGE_LINE };
+        CurrencyExchangeRequest currencyExchangeRequest =CurrencyExchangeRequestTestHelper.CreateFromArray(dataContent);
 
 
         // Act
-        Result result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
+        Result<CurrencyExchangeRequest> result = this._currencyExchangeRequestValidationService.IsCurrencyExchangeRequestContentValid(dataContent);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
+        result.Value.Should().BeEquivalentTo(currencyExchangeRequest);
     }
 
     private string GetValidCurrency()

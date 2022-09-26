@@ -6,7 +6,7 @@ public class CurrencyExchangeRequest
     public CurrencyCode ExpectedCurrency { get; private set; }
     public int Amount  { get; private set; }
 
-    public Dictionary<CurrencyRelation, decimal> ExchangesRates { get; private set; }
+    public Dictionary<CurrencyRelation, decimal> ExchangesRates { get; private set; } // TODO : mettre le taux de change dans CurrencyRelation et remplacer par un hashset
 
     public CurrencyExchangeRequest(CurrencyCode initialCurrency, CurrencyCode expectedCurrency, int amount)
     {
@@ -44,7 +44,7 @@ public class CurrencyExchangeRequest
     
     public IEnumerable<CurrencyCode> GetDistinctCurrencies()
     {
-        var currencies = 
+        IEnumerable<CurrencyCode> currencies = 
             this.ExchangesRates.Keys.Select(key => key.InitialCurrency)
             .Concat(this.ExchangesRates.Keys.Select(key => key.FinalCurrency));
 
@@ -53,7 +53,7 @@ public class CurrencyExchangeRequest
 
     public void RemoveExchangeRate(CurrencyCode currencyCode)
     {
-        CurrencyRelation entryToRemove = this.ExchangesRates.Keys.SingleOrDefault(k => k.InitialCurrency == currencyCode || k.FinalCurrency == currencyCode);
+        CurrencyRelation? entryToRemove = this.ExchangesRates.Keys.SingleOrDefault(k => k.InitialCurrency == currencyCode || k.FinalCurrency == currencyCode);
         if (entryToRemove != null)
         {
             this.ExchangesRates.Remove(entryToRemove);

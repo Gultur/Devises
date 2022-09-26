@@ -7,23 +7,23 @@ namespace LuccaDevises.Entities;
 public class CurrencyGraph
 {
     // number of currencies / node of the graph
-    private int _currenciesCount;
+    private readonly int _currenciesCount;
 
     private Dictionary<CurrencyCode, int> _indexByCurrencyCode;
 
-    private LinkedList<CurrencyCode>[] _currencyAdjencyList; // un simple tableau suffira
+    private readonly List<CurrencyCode>[] _currencyAdjencyList;
 
     public CurrencyGraph(IEnumerable<CurrencyCode> distinctCurrencies, CurrencyRelation[] currencyRelations)
     {
-        _currenciesCount = distinctCurrencies.Count();
+        this._currenciesCount = distinctCurrencies.Count();
 
-        _currencyAdjencyList = new LinkedList<CurrencyCode>[_currenciesCount];
-        _indexByCurrencyCode = new Dictionary<CurrencyCode, int>();
+        this._currencyAdjencyList = new List<CurrencyCode>[_currenciesCount];
+        this._indexByCurrencyCode = new Dictionary<CurrencyCode, int>();
 
         foreach (var (currency, index) in distinctCurrencies.Select((currency, index) => (currency, index)))
         {
-            _currencyAdjencyList[index] = new LinkedList<CurrencyCode>();
-            _indexByCurrencyCode.Add(currency, index);
+            this._currencyAdjencyList[index] = new List<CurrencyCode>();
+            this._indexByCurrencyCode.Add(currency, index);
         }
 
         foreach (CurrencyRelation currencyRelation in currencyRelations)
@@ -38,14 +38,14 @@ public class CurrencyGraph
     private void AddNeigbours(CurrencyRelation currencyRelation)
     {
         // un lien de taux de change est bidirectionnel
-        _currencyAdjencyList[_indexByCurrencyCode[currencyRelation.InitialCurrency]].AddLast(currencyRelation.FinalCurrency);
-        _currencyAdjencyList[_indexByCurrencyCode[currencyRelation.FinalCurrency]].AddLast(currencyRelation.InitialCurrency);
+        this._currencyAdjencyList[_indexByCurrencyCode[currencyRelation.InitialCurrency]].Add(currencyRelation.FinalCurrency);
+        this._currencyAdjencyList[_indexByCurrencyCode[currencyRelation.FinalCurrency]].Add(currencyRelation.InitialCurrency);
     }
 
-    private LinkedList<CurrencyCode> GetAdjacentCurrency(CurrencyCode currencyCode)
+    private List<CurrencyCode> GetAdjacentCurrency(CurrencyCode currencyCode)
     {
-        var index = _indexByCurrencyCode[currencyCode];
-        return _currencyAdjencyList[index];
+        int index = this._indexByCurrencyCode[currencyCode];
+        return this._currencyAdjencyList[index];
     }
 
 
@@ -53,12 +53,12 @@ public class CurrencyGraph
     // representation of graph
     private void PrintGraph()
     {
-        for (int i = 0; i < _currencyAdjencyList.Length; i++)
+        for (int i = 0; i < this._currencyAdjencyList.Length; i++)
         {
             Debug.WriteLine("\nRelation for the Currency "
-                              + _indexByCurrencyCode.First(kv => kv.Value == i));
+                              + this._indexByCurrencyCode.First(kv => kv.Value == i));
 
-            foreach (CurrencyCode item in _currencyAdjencyList[i])
+            foreach (CurrencyCode item in this._currencyAdjencyList[i])
             {
                 Debug.Write(" -> " + item);
             }
@@ -130,10 +130,10 @@ public class CurrencyGraph
 
     private void WriteDebug(CurrencyCode sourceCurrencyCode, CurrencyCode destinationCurrencyCode)
     {
-        int sourceIndex = _indexByCurrencyCode[sourceCurrencyCode];
+        int sourceIndex = this._indexByCurrencyCode[sourceCurrencyCode];
         Debug.WriteLine("Source currency " + sourceCurrencyCode + " at index " + sourceIndex);
 
-        int destinationIndex = _indexByCurrencyCode[destinationCurrencyCode];
+        int destinationIndex = this._indexByCurrencyCode[destinationCurrencyCode];
         Debug.WriteLine("Destination currency " + destinationCurrencyCode + " at index " + destinationIndex);
     }
 

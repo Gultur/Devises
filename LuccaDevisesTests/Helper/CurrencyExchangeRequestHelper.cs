@@ -9,7 +9,7 @@ internal static class CurrencyExchangeRequestTestHelper
     public static CurrencyExchangeRequest CreateFromArray(string[] validArray)
     {
 
-        var headerParts = validArray[0].Split(';');
+        string[] headerParts = validArray[0].Split(';');
 
         CurrencyExchangeRequest currencyExchangeRequest = new CurrencyExchangeRequest(
             new CurrencyCode(headerParts[0]), 
@@ -22,7 +22,7 @@ internal static class CurrencyExchangeRequestTestHelper
         // we ignore the first two line
         for (int i = 2; i<validArray.Length; i ++)
         {
-            var exchangeRateParts = validArray[i].Split(';');
+            string[] exchangeRateParts = validArray[i].Split(';');
 
             currencyExchangeRequest.AddExchangeRate(
                 new CurrencyCode(exchangeRateParts[0]),
@@ -31,6 +31,5 @@ internal static class CurrencyExchangeRequestTestHelper
         }
 
         return currencyExchangeRequest;
-
     }
 }

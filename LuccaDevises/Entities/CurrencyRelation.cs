@@ -11,6 +11,7 @@ public record CurrencyRelation
         this.FinalCurrency = finalCurrency;
     }
 
+    // TODO : après ajout du taux de change, cette methode doit calculer celui de l'inversion aussi
     public static CurrencyRelation ReverseCurrencyRelation(CurrencyRelation currencyRelation)
     {
         return new CurrencyRelation(currencyRelation.FinalCurrency, currencyRelation.InitialCurrency);

@@ -24,7 +24,7 @@ public class TestProgramArgumentValidationService
         string[] arguments = Array.Empty<string>();
 
         // Act
-        Result result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
+        Result<string> result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -40,7 +40,7 @@ public class TestProgramArgumentValidationService
         string[] arguments = new string[] { "filePath", "anotherArg"};
 
         // Act
-        Result result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
+        Result<string> result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -57,7 +57,7 @@ public class TestProgramArgumentValidationService
         string[] arguments = new string[] { filePath };
 
         // Act
-        Result result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
+        Result<string> result = this._programArgumentValidationService.GetFilePathFromArguments(arguments);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

@@ -28,7 +28,7 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
         Debug.WriteLine(string.Join("->", shortestPathResult.Value.Select(c => c)));
 
         decimal initialamount = currencyExchangeRequest.Amount;
-        var path = shortestPathResult.Value;
+        List<CurrencyCode> path = shortestPathResult.Value;
 
         for (int i = 0; i < path.Count - 1; i++)
         {
@@ -36,7 +36,7 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
 
             if (currencyExchangeRequest.ExchangesRates.ContainsKey(relation))
             {
-                initialamount = initialamount * currencyExchangeRequest.ExchangesRates[relation];
+                initialamount *= currencyExchangeRequest.ExchangesRates[relation];
             }
             else
             {
@@ -46,7 +46,7 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
                 {
                     decimal currencyRatechange = Math.Round(1 / currencyExchangeRequest.ExchangesRates[reversedRelation], 4, MidpointRounding.AwayFromZero);
 
-                    initialamount = initialamount * currencyRatechange;
+                    initialamount *= currencyRatechange;
                 }
 
             }

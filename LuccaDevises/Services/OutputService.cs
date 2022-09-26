@@ -6,7 +6,10 @@ internal class OutputService : IOutputService
 {
     public void OutputErrorMessage(string message)
     {
-        Console.WriteLine("Encountered Error : ", ConsoleColor.Red, message, null);
+        Console.BackgroundColor = ConsoleColor.Black;
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine($"Encountered Error : {message}");
+        Console.ResetColor();
     }
     public void OutputMessage(string message)
     {
