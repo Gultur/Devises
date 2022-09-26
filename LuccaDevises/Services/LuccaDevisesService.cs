@@ -10,23 +10,28 @@ internal class LuccaDevisesService : ILuccaDevisesService
     private IFileService _fileService;
     private IOutputService _outputService;
     private IExchangeRequestValidationService _exchangeRequestValidationService;
+    private IExchangeRequestService _exchangeRequestService;
 
     public LuccaDevisesService(
         IProgramArgumentValidationService programArgumentValidationService,
         IFileService fileService,
         IExchangeRequestValidationService exchangeRequestValidationService,
-        IOutputService outputService)
+        IOutputService outputService,
+        IExchangeRequestService exchangeRequestService)
     {
         this._programArgumentValidationService = programArgumentValidationService;
         this._fileService = fileService;
         this._exchangeRequestValidationService = exchangeRequestValidationService;
         this._outputService = outputService;
+        this._exchangeRequestService = exchangeRequestService;
     }
 
     // methode de nouilles
     public void Execute(string[] args)
     {
         //string[] appArgs = Environment.GetCommandLineArgs();
+
+        //args = new string[] { "F:\\Programmation\\Lucca\\testLuccaOk.txt" };
 
         Result<string> filePathResult = this._programArgumentValidationService.GetFilePathFromArguments(args);
 
@@ -69,6 +74,10 @@ internal class LuccaDevisesService : ILuccaDevisesService
                 if (requestValidationResult.IsFailure)
                 {
                     this._outputService.OutputError(requestValidationResult.Message);
+                }
+                else
+                {
+                    this._exchangeRequestService.CalculateExchange(requestValidationResult.Value);
                 }
             }
         }

@@ -10,4 +10,9 @@ public record CurrencyRelation
         this.InitialCurrency = initialCurrency;
         this.FinalCurrency = finalCurrency;
     }
+
+    public static CurrencyRelation ReverseCurrencyRelation(CurrencyRelation currencyRelation)
+    {
+        return new CurrencyRelation(currencyRelation.FinalCurrency, currencyRelation.InitialCurrency);
+    }
 }

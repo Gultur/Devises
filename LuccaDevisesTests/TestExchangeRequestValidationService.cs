@@ -10,7 +10,7 @@ namespace LuccaDevisesTests;
 [TestFixture]
 public class TestExchangeRequestValidationService
 {
-    private ExchangeRequestValidationService _exchangeTequestValidationService;
+    private ExchangeRequestValidationService _exchangeRequestValidationService;
 
     private const string VALID_HEADER = "EUR;550;JPY";
     private const string VALID_CHANGE_LINE_COUNT = "1";
@@ -23,7 +23,7 @@ public class TestExchangeRequestValidationService
     public void Setup()
     {
         this._fixture = new Fixture();
-        this._exchangeTequestValidationService = new ExchangeRequestValidationService();
+        this._exchangeRequestValidationService = new ExchangeRequestValidationService();
     }
 
     [Test]
@@ -33,7 +33,7 @@ public class TestExchangeRequestValidationService
         string[] dataContent = Array.Empty<string>();
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -54,7 +54,7 @@ public class TestExchangeRequestValidationService
         }
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -70,7 +70,7 @@ public class TestExchangeRequestValidationService
         dataContent[0] = "invalidHeader";
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -91,7 +91,7 @@ public class TestExchangeRequestValidationService
 
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -109,7 +109,7 @@ public class TestExchangeRequestValidationService
 
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -132,7 +132,7 @@ public class TestExchangeRequestValidationService
         dataContent[1] = lineCount;
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -149,7 +149,7 @@ public class TestExchangeRequestValidationService
         dataContent[1] = "2";
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -168,7 +168,7 @@ public class TestExchangeRequestValidationService
         dataContent[2] = "Invalid";
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -191,7 +191,7 @@ public class TestExchangeRequestValidationService
 
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsFailure.Should().BeTrue();
@@ -208,7 +208,7 @@ public class TestExchangeRequestValidationService
 
 
         // Act
-        Result result = this._exchangeTequestValidationService.IsRequestContentValid(dataContent);
+        Result result = this._exchangeRequestValidationService.IsRequestContentValid(dataContent);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

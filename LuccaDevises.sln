@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuccaDevises", "LuccaDevises\LuccaDevises.csproj", "{3FED787C-DFE4-4585-A9D6-A28412FD2A10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuccaDevises", "LuccaDevises\LuccaDevises.csproj", "{3FED787C-DFE4-4585-A9D6-A28412FD2A10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LuccaDevisesTests", "LuccaDevisesTests\LuccaDevisesTests.csproj", "{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LuccaDevisesTests", "LuccaDevisesTests\LuccaDevisesTests.csproj", "{DAB3E0A9-E279-4EEF-B362-383ABD810C0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

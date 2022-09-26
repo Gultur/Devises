@@ -4,8 +4,7 @@ public class CurrencyExchangeRequest
 {
     public CurrencyCode InitialCurrency { get; private set; }
     public CurrencyCode ExpectedCurrency { get; private set; }
-
-    public int Amount  { get; set; }
+    public int Amount  { get; private set; }
 
     public Dictionary<CurrencyRelation, decimal> ExchangesRates { get; private set; }
 
@@ -29,19 +28,35 @@ public class CurrencyExchangeRequest
 
     public IEnumerable<CurrencyCode> GetSingleCurrencies()
     {
-        var initialCurrencies = this.ExchangesRates.Keys.Select(key => key.InitialCurrency).ToList();
-        var finalCurrencies = this.ExchangesRates.Keys.Select(key => key.FinalCurrency).ToList();
+        List<CurrencyCode> initialCurrencies = this.ExchangesRates.Keys.Select(key => key.InitialCurrency).ToList();
+        List<CurrencyCode> finalCurrencies = this.ExchangesRates.Keys.Select(key => key.FinalCurrency).ToList();
 
         initialCurrencies.AddRange(finalCurrencies);
 
-        var singleOnes = initialCurrencies
+        IEnumerable<CurrencyCode> singleOnes = initialCurrencies
             .GroupBy(c => c)
             .Where(g => g.Count() == 1)
             .Select(g => g.Key)
             .Where(k => k != this.InitialCurrency && k != this.ExpectedCurrency);
 
-            
-
         return singleOnes.ToArray();
+    }
+    
+    public IEnumerable<CurrencyCode> GetDistinctCurrencies()
+    {
+        var currencies = 
+            this.ExchangesRates.Keys.Select(key => key.InitialCurrency)
+            .Concat(this.ExchangesRates.Keys.Select(key => key.FinalCurrency));
+
+        return currencies.Distinct();
+    }
+
+    public void RemoveExchangeRate(CurrencyCode currencyCode)
+    {
+        CurrencyRelation entryToRemove = this.ExchangesRates.Keys.SingleOrDefault(k => k.InitialCurrency == currencyCode || k.FinalCurrency == currencyCode);
+        if (entryToRemove != null)
+        {
+            this.ExchangesRates.Remove(entryToRemove);
+        }
     }
 }

@@ -62,6 +62,5 @@ public class TestProgramArgumentValidationService
 
         // Assert
         result.IsSuccess.Should().BeTrue();
-        result.Message.Should().BeNull();
     }
 }

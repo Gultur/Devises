@@ -22,6 +22,7 @@ class Program
                 .AddSingleton<IProgramArgumentValidationService, ProgramArgumentValidationService>()
                 .AddSingleton<IExchangeRequestValidationService, ExchangeRequestValidationService>()
                 .AddSingleton<IExchangeRequestService, ExchangeRequestService>()
+                .AddSingleton<IExchangeRequestService, ExchangeRequestService>()
                 .AddSingleton<IOutputService, OutputService>()
                 .AddSingleton<ILuccaDevisesService, LuccaDevisesService>();
     }
