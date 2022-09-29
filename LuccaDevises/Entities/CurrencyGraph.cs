@@ -12,8 +12,8 @@ public class CurrencyGraph
 
     public CurrencyGraph(CurrencyExchangeRequest currencyExchangeRequest)
     {
-        var distinctCurrencies = currencyExchangeRequest.GetDistinctCurrencies();
-        var currencyRelations = currencyExchangeRequest.ExchangesRates.Keys.ToArray();
+        IEnumerable<CurrencyCode> distinctCurrencies = currencyExchangeRequest.GetDistinctCurrencies();
+        CurrencyRelation[] currencyRelations = currencyExchangeRequest.ExchangesRates.Keys.ToArray();
 
         this._adjacentCurrenciesByCurrencyCode = new Dictionary<CurrencyCode, List<CurrencyCode>>();
 

@@ -25,23 +25,22 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
 
     public Result<CurrencyExchangeRequest> IsCurrencyExchangeRequestContentValid(IEnumerable<string> content)
     {
-
-        if (IsContentNullOrEmpy(content))
+        if (content == null || !content.Any())
         {
             return Result<CurrencyExchangeRequest>.Failure(NO_CONTENT);
         }
 
         // we remove external white space
-        string[] data = content.Select(line => line.Trim()).ToArray();
+        string[] cleanedContent = content.Select(line => line.Trim()).ToArray();
 
-        if (IsLineMissing(data))
+        // We should have at least 3 lines in the file
+        if (cleanedContent.Length < 3)
         {
             return Result<CurrencyExchangeRequest>.Failure(NOT_ENOUGH_LINES);
         }
 
-
         // line 1 of type (iso, int > 0, iso)
-        string headerLine = data[0];
+        string headerLine = cleanedContent[0];
 
         Result<CurrencyExchangeRequest> initializeRequestHeaderResult = AddHeaderDataToRequest(headerLine);
         if (initializeRequestHeaderResult.IsFailure)
@@ -52,7 +51,7 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
         CurrencyExchangeRequest currencyExchangeRequest = initializeRequestHeaderResult.Value;
 
         // line 2 of type positive integer
-        string changeLinesCountData = data[1];
+        string changeLinesCountData = cleanedContent[1];
         if (IsLineCountInvalid(changeLinesCountData, out int expectedChangeLinesCount))
         {
             return Result<CurrencyExchangeRequest>.Failure(LINE_COUNT_NOT_PARSABLE);
@@ -76,16 +75,6 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
 
 
         return Result<CurrencyExchangeRequest>.Success(currencyExchangeRequest);
-    }
-
-    private bool IsLineMissing(string[] data)
-    {
-        return data.Length < 3;
-    }
-
-    private bool IsContentNullOrEmpy(IEnumerable<string> content)
-    {
-        return content == null || !content.Any();
     }
 
     /*
@@ -132,12 +121,8 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
     private bool IsLineCountInvalid(string line, out int expectedLinescount)
     {
         bool isIntValue = int.TryParse(line, out expectedLinescount);
-        if (!isIntValue)
-        {
-            return true;
-        }
 
-        if (expectedLinescount < 0)
+        if (!isIntValue || expectedLinescount < 0)
         {
             return true;
         }
@@ -157,7 +142,7 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
         // possible vérification par regex : ^([A-Z]{3};){2}[0-9]+\.[0-9]{4}$ mais cela ne vérifie pas que le taux de change est supérieur à 0
         // du moins je n'ai pas assez de connaissances en regex pour ce tour de passe-passe
 
-        foreach (var line in lines)
+        foreach (string line in lines)
         {
             string[] changeLineElements = line.Split(';');
 
@@ -196,11 +181,6 @@ internal class CurrencyExchangeRequestValidationService : ICurrencyExchangeReque
     {
         MatchCollection matches = Regex.Matches(code, CurrencyCode.PATTERN);
 
-        if (matches.Count == 0 || matches.Count > 1)
-        {
-            return true;
-        }
-
-        return false;
+        return matches.Count != 1;
     }
 }

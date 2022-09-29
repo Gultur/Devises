@@ -6,7 +6,7 @@ public class CurrencyExchangeRequest
     public CurrencyCode ExpectedCurrency { get; private set; }
     public int Amount  { get; private set; }
 
-    public Dictionary<CurrencyRelation, decimal> ExchangesRates { get; private set; } // TODO : mettre le taux de change dans CurrencyRelation et remplacer par un hashset
+    public Dictionary<CurrencyRelation, decimal> ExchangesRates { get; private set; }
 
     public CurrencyExchangeRequest(CurrencyCode initialCurrency, CurrencyCode expectedCurrency, int amount)
     {

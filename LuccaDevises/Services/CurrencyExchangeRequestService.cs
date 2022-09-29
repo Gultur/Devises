@@ -10,7 +10,6 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
 {
     public Result<int> CalculateExchange(CurrencyExchangeRequest currencyExchangeRequest)
     {
-
         currencyExchangeRequest = this.CleanUselessExchangeRates(currencyExchangeRequest);
 
         CurrencyGraph graph = new CurrencyGraph(currencyExchangeRequest);
