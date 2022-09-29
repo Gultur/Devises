@@ -33,6 +33,8 @@ public class CurrencyExchangeRequest
 
         initialCurrencies.AddRange(finalCurrencies);
 
+
+        // whe get currencies (excluding the exchanged currencies)  with only one link to an other, they can't be used to exchange
         IEnumerable<CurrencyCode> singleOnes = initialCurrencies
             .GroupBy(c => c)
             .Where(g => g.Count() == 1)

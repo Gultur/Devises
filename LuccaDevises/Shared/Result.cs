@@ -13,13 +13,13 @@ public class Result<T>
     public bool IsFailure => this.State == ResultState.FAILURE;
     public bool IsSuccess => this.State == ResultState.SUCCESS;
 
-    public new static Result<T> Failure(string failureMessage)
+    public static Result<T> Failure(string failureMessage)
     {
         return new Result<T>()
         {
             State = ResultState.FAILURE,
             Message = failureMessage,
-            Value = default(T),
+            Value = default,
         };
     }
 

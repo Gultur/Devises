@@ -12,16 +12,10 @@ internal class ProgramArgumentValidationService : IProgramArgumentValidationServ
 
     public Result<string> GetFilePathFromArguments(string[] programArguments)
     {
-        // First argument is the dll - shouldn't happend
         if (programArguments.Length == 0)
         {
             return Result<string>.Failure(NO_ARGUMENT_PROVIDED);
         }
-
-        //if (programArguments.Length < 2)
-        //{
-        //    return Result<string>.Failure(NO_FILEPATH_PROVIDED);
-        //}
 
         if (programArguments.Length > 1)
         {

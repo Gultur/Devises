@@ -6,59 +6,47 @@ namespace LuccaDevises.Entities;
 
 public class CurrencyGraph
 {
-    // number of currencies / node of the graph
-    private readonly int _currenciesCount;
+    const string CAN_NOT_EXCHANGE_CURRENCIES = "The currency {0} can't be exchanged to the currency {1}";
 
-    private Dictionary<CurrencyCode, int> _indexByCurrencyCode;
+    private readonly Dictionary<CurrencyCode, List<CurrencyCode>> _adjacentCurrenciesByCurrencyCode;
 
-    private readonly List<CurrencyCode>[] _currencyAdjencyList;
-
-    public CurrencyGraph(IEnumerable<CurrencyCode> distinctCurrencies, CurrencyRelation[] currencyRelations)
+    public CurrencyGraph(CurrencyExchangeRequest currencyExchangeRequest)
     {
-        this._currenciesCount = distinctCurrencies.Count();
+        var distinctCurrencies = currencyExchangeRequest.GetDistinctCurrencies();
+        var currencyRelations = currencyExchangeRequest.ExchangesRates.Keys.ToArray();
 
-        this._currencyAdjencyList = new List<CurrencyCode>[_currenciesCount];
-        this._indexByCurrencyCode = new Dictionary<CurrencyCode, int>();
+        this._adjacentCurrenciesByCurrencyCode = new Dictionary<CurrencyCode, List<CurrencyCode>>();
 
         foreach (var (currency, index) in distinctCurrencies.Select((currency, index) => (currency, index)))
         {
-            this._currencyAdjencyList[index] = new List<CurrencyCode>();
-            this._indexByCurrencyCode.Add(currency, index);
+            this._adjacentCurrenciesByCurrencyCode.Add(currency, new List<CurrencyCode>());
         }
 
         foreach (CurrencyRelation currencyRelation in currencyRelations)
         {
-            AddNeigbours(currencyRelation);
+            this.AddAdjacent(currencyRelation);
         }
 
         PrintGraph();
     }
 
 
-    private void AddNeigbours(CurrencyRelation currencyRelation)
+    private void AddAdjacent(CurrencyRelation currencyRelation)
     {
-        // un lien de taux de change est bidirectionnel
-        this._currencyAdjencyList[_indexByCurrencyCode[currencyRelation.InitialCurrency]].Add(currencyRelation.FinalCurrency);
-        this._currencyAdjencyList[_indexByCurrencyCode[currencyRelation.FinalCurrency]].Add(currencyRelation.InitialCurrency);
+        this._adjacentCurrenciesByCurrencyCode[currencyRelation.InitialCurrency].Add(currencyRelation.FinalCurrency);
+        this._adjacentCurrenciesByCurrencyCode[currencyRelation.FinalCurrency].Add(currencyRelation.InitialCurrency);
     }
-
-    private List<CurrencyCode> GetAdjacentCurrency(CurrencyCode currencyCode)
-    {
-        int index = this._indexByCurrencyCode[currencyCode];
-        return this._currencyAdjencyList[index];
-    }
-
 
     // A utility function to print the adjacency list
     // representation of graph
     private void PrintGraph()
     {
-        for (int i = 0; i < this._currencyAdjencyList.Length; i++)
+        foreach (KeyValuePair<CurrencyCode, List<CurrencyCode>> adjacentCurrenciesForCurrency in this._adjacentCurrenciesByCurrencyCode)
         {
             Debug.WriteLine("\nRelation for the Currency "
-                              + this._indexByCurrencyCode.First(kv => kv.Value == i));
+                              + adjacentCurrenciesForCurrency.Key.ToString());
 
-            foreach (CurrencyCode item in this._currencyAdjencyList[i])
+            foreach (CurrencyCode item in adjacentCurrenciesForCurrency.Value)
             {
                 Debug.Write(" -> " + item);
             }
@@ -68,10 +56,7 @@ public class CurrencyGraph
 
     public Result<List<CurrencyCode>> GetShortestPath(CurrencyCode sourceCurrencyCode, CurrencyCode destinationCurrencyCode)
     {
-        WriteDebug(sourceCurrencyCode, destinationCurrencyCode);
-
         // initialisation of collection
-
         Dictionary<CurrencyCode, CurrencyPathComputed> currencyPathByCode = new Dictionary<CurrencyCode, CurrencyPathComputed>();
         Queue<CurrencyCode> currenciesToExplore = new Queue<CurrencyCode>();
 
@@ -87,78 +72,34 @@ public class CurrencyGraph
             CurrencyCode dequeuedCurrency = currenciesToExplore.Dequeue();
 
             // Get linked currencies
-            CurrencyCode[] adjacentCurrency = GetAdjacentCurrency(dequeuedCurrency).Select(c => c).ToArray();
+            CurrencyCode[] adjacentCurrencies = this._adjacentCurrenciesByCurrencyCode[dequeuedCurrency].Select(c => c).ToArray();
 
-            if (!adjacentCurrency.Any())
-            {
-                continue;
-            }
+            if (!adjacentCurrencies.Any()) continue;
 
             CurrencyPathComputed dequeuedCurrencyPathInfo = currencyPathByCode[dequeuedCurrency];
 
-            foreach (CurrencyCode currency in adjacentCurrency)
+            foreach (CurrencyCode currency in adjacentCurrencies)
             {
-
                 // if currency is already in the dictionnary we should ignore it
-                if (currencyPathByCode.ContainsKey(currency))
+                if (!currencyPathByCode.ContainsKey(currency))
                 {
-                    continue;
-                }
+                    CurrencyPathComputed currencyPathComputed = CurrencyPathComputed.CreateFromPrevious(dequeuedCurrencyPathInfo, currency);
+                    currencyPathByCode.Add(currency, currencyPathComputed);
 
-                CurrencyPathComputed currencyPathComputed = CurrencyPathComputed.CreateFromPrevious(dequeuedCurrencyPathInfo, currency);
-                currencyPathByCode.Add(currency, currencyPathComputed);
-
-                if (currency == destinationCurrencyCode)
-                {
-                    destinationHaveBeenReached = true;
-                }
-                else
-                {
-                    currenciesToExplore.Enqueue(currency);
+                    if (currency == destinationCurrencyCode)
+                    {
+                        destinationHaveBeenReached = true;
+                    }
+                    else
+                    {
+                        currenciesToExplore.Enqueue(currency);
+                    }
                 }
             }
         }
 
-        if (destinationHaveBeenReached)
-        {
-            Debug.WriteLine(currencyPathByCode[destinationCurrencyCode].ToString());
-            return Result<List<CurrencyCode>>.Success(currencyPathByCode[destinationCurrencyCode].Path);
-        }
-
-        return Result<List<CurrencyCode>>.Failure("destination have not been reached");
-    }
-
-    private void WriteDebug(CurrencyCode sourceCurrencyCode, CurrencyCode destinationCurrencyCode)
-    {
-        int sourceIndex = this._indexByCurrencyCode[sourceCurrencyCode];
-        Debug.WriteLine("Source currency " + sourceCurrencyCode + " at index " + sourceIndex);
-
-        int destinationIndex = this._indexByCurrencyCode[destinationCurrencyCode];
-        Debug.WriteLine("Destination currency " + destinationCurrencyCode + " at index " + destinationIndex);
-    }
-
-    private class CurrencyPathComputed
-    {
-        public CurrencyCode CurrencyCode { get; private set; }
-        public List<CurrencyCode> Path { get; private set; }
-        public int Distance { get; private set; }
-
-        public CurrencyPathComputed(CurrencyCode currencyCode, IEnumerable<CurrencyCode> existingPath, int distance)
-        {
-            CurrencyCode = currencyCode;
-            Path = new List<CurrencyCode>(existingPath);
-            Path.Add(currencyCode);
-            Distance = distance;
-        }
-
-        public static CurrencyPathComputed CreateFromPrevious(CurrencyPathComputed previous, CurrencyCode code)
-        {
-            return new CurrencyPathComputed(code, previous.Path, previous.Distance + 1);
-        }
-
-        public new string ToString()
-        {
-            return string.Join(" -> ", Path.Select(c => c.ToString()));
-        }
+        return destinationHaveBeenReached
+            ? Result<List<CurrencyCode>>.Success(currencyPathByCode[destinationCurrencyCode].Path)
+            : Result<List<CurrencyCode>>.Failure(string.Format(CAN_NOT_EXCHANGE_CURRENCIES, sourceCurrencyCode, destinationCurrencyCode));
     }
 }

@@ -13,9 +13,7 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
 
         currencyExchangeRequest = this.CleanUselessExchangeRates(currencyExchangeRequest);
 
-        IEnumerable<CurrencyCode> distinctCurrencies = currencyExchangeRequest.GetDistinctCurrencies();
-
-        CurrencyGraph graph = new CurrencyGraph(distinctCurrencies, currencyExchangeRequest.ExchangesRates.Keys.ToArray());
+        CurrencyGraph graph = new CurrencyGraph(currencyExchangeRequest);
 
         Result<List<CurrencyCode>> shortestPathResult = graph.GetShortestPath(currencyExchangeRequest.InitialCurrency, currencyExchangeRequest.ExpectedCurrency);
 
@@ -25,6 +23,7 @@ internal class CurrencyExchangeRequestService : ICurrencyExchangeRequestService
             return Result<int>.Failure(shortestPathResult.Message);
 
         }
+
         Debug.WriteLine(string.Join("->", shortestPathResult.Value.Select(c => c)));
 
         decimal initialamount = currencyExchangeRequest.Amount;
